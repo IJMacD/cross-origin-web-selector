@@ -1,0 +1,23 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: boc-prime-odata
+  name: boc-prime-odata
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: boc-prime-odata
+  template:
+    metadata:
+      labels:
+        app: boc-prime-odata
+    spec:
+      containers:
+      - image: ghcr.io/ijmacd/boc-prime-odata
+        imagePullPolicy: Always
+        name: boc-prime-odata
+      imagePullSecrets:
+      - name: regcred
+      restartPolicy: Always
