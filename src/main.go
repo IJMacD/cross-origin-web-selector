@@ -7,7 +7,7 @@ import (
 	"os"
 	"strings"
 
-	"github.com/IJMacD/boc-prime-odata/odata"
+	"github.com/IJMacD/boc-prime-odata/resources"
 	"github.com/urfave/negroni"
 )
 
@@ -25,11 +25,19 @@ func loggingMiddleware (next http.Handler) http.Handler {
 }
 
 func main() {
+	resourceMap := make(map[string]resources.ResourceSpec)
+
+	resourceMap["bocPrime"] = resources.ResourceSpec{
+		URL: "https://www.bochk.com/whk/rates/hkDollarPrimeRate/hkDollarPrimeRate-enquiry.action?lang=en",
+		QuerySelector: ".best-rate td:nth-child(2)",
+	}
+
+	r := resources.NewResources(resourceMap)
+
     fmt.Println("Listening on :8080")
 
 	mux := http.NewServeMux()
-	mux.HandleFunc("/V4/$metadata", odata.GetMetaData)
-	mux.HandleFunc("/V4/Banks('boc')", odata.GetBank)
+	mux.Handle("/r/{resourceName}", r)
 
 	handler := loggingMiddleware(mux)
 
