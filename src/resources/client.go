@@ -3,6 +3,7 @@ package resources
 import (
 	"errors"
 	"net/http"
+	"strings"
 
 	"github.com/go-shiori/dom"
 	"golang.org/x/net/html"
@@ -29,7 +30,7 @@ func GetScalar(url string, querySelector string) (string, error) {
 		return "", errors.New("couldn't match selector")
 	}
 
-	value := dom.InnerText(el)
+	value := strings.TrimSpace(dom.TextContent(el))
 
 	return value, nil
 }

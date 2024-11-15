@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"io"
 	"net/http"
+	"strings"
 )
 
 func NewResources (resources map[string]ResourceSpec) Resources {
@@ -21,6 +22,12 @@ func (res Resources) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	var shouldOutputJSON bool
+
+	if len(r.Header["Accept"]) > 0 {
+		shouldOutputJSON = strings.Contains(r.Header["Accept"][0], "application/json")
+	}
+
 	var data []byte
 	var err error
 
@@ -34,11 +41,15 @@ func (res Resources) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		msg := ScalarMessage{
-			Value: val,
+		if shouldOutputJSON {
+			msg := ScalarMessage{
+				Value: val,
+			}
+			
+			data, err = json.Marshal(msg)
+		} else {
+			data = []byte(val)
 		}
-		
-		data, err = json.Marshal(msg)
 
 	case rs.QuerySelectorAll != "":
 		vals, e := GetVector(rs.URL, rs.QuerySelectorAll)
@@ -49,11 +60,15 @@ func (res Resources) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		msg := VectorMessage{
-			Values: vals,
+		if shouldOutputJSON {
+			msg := VectorMessage{
+				Values: vals,
+			}
+			
+			data, err = json.Marshal(msg)
+		} else {
+			data = []byte(strings.Join(vals, "\n"))
 		}
-		
-		data, err = json.Marshal(msg)
 	default:
 		w.WriteHeader(http.StatusInternalServerError)
 		
@@ -65,7 +80,13 @@ func (res Resources) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	w.Header().Set("Content-Type", "application/json")
 	w.Header().Set("Access-Control-Allow-Origin", "*")
+	
+	if shouldOutputJSON {
+		w.Header().Set("Content-Type", "application/json")
+	} else {
+		w.Header().Set("Content-Type", "text/plain")
+	}
+	
 	w.Write(data)
 }

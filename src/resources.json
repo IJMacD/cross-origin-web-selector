@@ -1,0 +1,6 @@
+{
+    "bocPrime": {
+        "url": "https://www.bochk.com/whk/rates/hkDollarPrimeRate/hkDollarPrimeRate-enquiry.action?lang=en",
+        "querySelector": ".best-rate td:nth-child(2)"
+    }
+}

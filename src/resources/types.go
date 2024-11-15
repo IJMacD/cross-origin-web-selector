@@ -15,7 +15,7 @@ type Resources struct {
 }
 
 type ResourceSpec struct {
-	URL string
-	QuerySelector string
-	QuerySelectorAll string
+	URL string					`json:"url"`
+	QuerySelector string		`json:"querySelector"`
+	QuerySelectorAll string		`json:"querySelectorAll"`
 }
