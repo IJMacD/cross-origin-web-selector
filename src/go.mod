@@ -1,4 +1,4 @@
-module github.com/IJMacD/boc-prime-odata
+module github.com/IJMacD/cows
 
 go 1.23.1
 

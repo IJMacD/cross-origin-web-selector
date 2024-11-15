@@ -5,24 +5,10 @@ import (
 	"fmt"
 	"net/http"
 	"os"
-	"strings"
 
-	"github.com/IJMacD/boc-prime-odata/resources"
-	"github.com/urfave/negroni"
+	"github.com/IJMacD/cows/logging"
+	"github.com/IJMacD/cows/resources"
 )
-
-func loggingMiddleware (next http.Handler) http.Handler {
-	return http.HandlerFunc(
-		func (w http.ResponseWriter, r *http.Request) {
-			// Wrapped writer to intercept and record response code
-			ww := negroni.NewResponseWriter(w)
-
-			next.ServeHTTP(ww, r)
-
-			fmt.Printf("\"%s %s %s\" %d %d \"%s\" \"%s\"\n", r.Method, r.RequestURI, r.Proto, ww.Status(), ww.Size(), "-", strings.Join(r.Header["User-Agent"], " "))
-		},
-	)
-}
 
 func main() {
 	resourceMap := make(map[string]resources.ResourceSpec)
@@ -39,7 +25,7 @@ func main() {
 	mux := http.NewServeMux()
 	mux.Handle("/r/{resourceName}", r)
 
-	handler := loggingMiddleware(mux)
+	handler := logging.LoggingMiddleware(mux)
 
 	err := http.ListenAndServe(":8080", handler)
 	

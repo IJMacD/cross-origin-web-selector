@@ -21,12 +21,16 @@ func (res Resources) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if rs.QuerySelector != "" {
-		val, err := GetScalar(rs.URL, rs.QuerySelector)
+	var data []byte
+	var err error
+
+	switch{
+	case rs.QuerySelector != "":
+		val, e := GetScalar(rs.URL, rs.QuerySelector)
 		
-		if err != nil {
+		if e != nil {
 			w.WriteHeader(http.StatusBadRequest)
-			io.WriteString(w, err.Error())
+			io.WriteString(w, e.Error())
 			return
 		}
 
@@ -34,25 +38,14 @@ func (res Resources) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			Value: val,
 		}
 		
-		data, err := json.Marshal(msg)
-		
-		if err != nil {
-			w.WriteHeader(http.StatusBadRequest)
-			return
-		}
-		
-		w.Header().Set("Content-Type", "application/json")
-		w.Write(data)
+		data, err = json.Marshal(msg)
 
-		return
-	}
-
-	if rs.QuerySelectorAll != "" {
-		vals, err := GetVector(rs.URL, rs.QuerySelectorAll)
+	case rs.QuerySelectorAll != "":
+		vals, e := GetVector(rs.URL, rs.QuerySelectorAll)
 		
-		if err != nil {
+		if e != nil {
 			w.WriteHeader(http.StatusBadRequest)
-			io.WriteString(w, err.Error())
+			io.WriteString(w, e.Error())
 			return
 		}
 
@@ -60,16 +53,19 @@ func (res Resources) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			Values: vals,
 		}
 		
-		data, err := json.Marshal(msg)
+		data, err = json.Marshal(msg)
+	default:
+		w.WriteHeader(http.StatusInternalServerError)
 		
-		if err != nil {
-			w.WriteHeader(http.StatusBadRequest)
-			return
-		}
-		
-		w.Header().Set("Content-Type", "application/json")
-		w.Write(data)
-
 		return
 	}
+
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Write(data)
 }
