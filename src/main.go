@@ -7,13 +7,25 @@ import (
 	"io"
 	"net/http"
 	"os"
+	"strings"
 
 	"github.com/IJMacD/cows/logging"
 	"github.com/IJMacD/cows/resources"
 )
 
 func main() {
-	rm, err := getResourceMap("resources.json")
+	f := "resources.json"
+
+	if len(os.Args) > 1 {
+		switch {
+		case strings.HasPrefix(os.Args[1], "--resources="):
+			f = strings.TrimPrefix(os.Args[1], "--resources=")
+		case os.Args[1] == "--resources" && len(os.Args) > 2:
+			f = os.Args[2]
+		}
+	}
+
+	rm, err := getResourceMap(f)
 
 	if err != nil {
 		fmt.Println(err.Error())

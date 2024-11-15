@@ -2,22 +2,32 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   labels:
-    app: boc-prime-odata
-  name: boc-prime-odata
+    app: cows
+  name: cows
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: boc-prime-odata
+      app: cows
   template:
     metadata:
       labels:
-        app: boc-prime-odata
+        app: cows
     spec:
       containers:
-      - image: ghcr.io/ijmacd/boc-prime-odata
+      - image: ghcr.io/ijmacd/cows
         imagePullPolicy: Always
-        name: boc-prime-odata
+        name: cows
+        args: [
+          "--resources=/config/resources.json"
+        ]
+        volumeMounts:
+          - name: config
+            mountPath: /config
+      volumes:
+        - name: config
+          configMap:
+            name: cows-config
       imagePullSecrets:
       - name: regcred
       restartPolicy: Always
