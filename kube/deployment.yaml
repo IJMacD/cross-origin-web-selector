@@ -15,7 +15,7 @@ spec:
         app: cows
     spec:
       containers:
-      - image: ghcr.io/ijmacd/cows
+      - image: ghcr.io/ijmacd/cows:1.1.0
         imagePullPolicy: Always
         name: cows
         args: [

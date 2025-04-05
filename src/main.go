@@ -39,10 +39,15 @@ func main() {
 	mux := http.NewServeMux()
 	mux.Handle("/r/{resourceName}", r)
 
+	mux.Handle("/", http.HandlerFunc(func (w http.ResponseWriter, r *http.Request) {
+		h := "<h1>Cross Origin Web Selector</h1><p>Pre-defined named selectors are accessible at <code>/r/{resourceName}</code></p>"
+		w.Write([]byte(h))
+	}))
+
 	handler := logging.LoggingMiddleware(mux)
 
 	err = http.ListenAndServe(":8080", handler)
-	
+
   	if errors.Is(err, http.ErrServerClosed) {
 		fmt.Printf("server closed\n")
 	} else if err != nil {
